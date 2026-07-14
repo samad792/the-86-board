@@ -406,14 +406,11 @@
 
   /* ---------- helpers ---------- */
 
-  // A close that runs past midnight still belongs to the previous
-  // evening's shift, so anything logged before 6am counts as the
-  // prior day's close.
+  // Plain calendar day: midnight always starts a new day.
   function shiftDateKey(d){
-    const shifted = new Date(d.getTime() - 6*60*60*1000);
-    const y = shifted.getFullYear();
-    const m = String(shifted.getMonth()+1).padStart(2,"0");
-    const day = String(shifted.getDate()).padStart(2,"0");
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,"0");
+    const day = String(d.getDate()).padStart(2,"0");
     return y + "-" + m + "-" + day;
   }
   function prettyDate(key){
@@ -508,6 +505,16 @@
   welcomeGo.addEventListener("click", enterBoard);
   welcomeName.addEventListener("keydown", e => { if(e.key === "Enter") enterBoard(); });
   welcomeName.focus();
+
+  /* ---------- keep "today" accurate across a day rollover ---------- */
+  let currentDayKey = shiftDateKey(new Date());
+  setInterval(() => {
+    const k = shiftDateKey(new Date());
+    if(k !== currentDayKey){
+      currentDayKey = k;
+      render();
+    }
+  }, 30000); // check twice a minute; cheap and catches midnight promptly
 
   /* ---------- live data ---------- */
   db.collection(COL).orderBy("createdAt","desc").limit(500).onSnapshot(
