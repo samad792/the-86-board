@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The 86 Board</title>
+<title>The 86</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -261,16 +261,67 @@
     border-radius:var(--radius);
     padding:12px 14px;font-size:13px;margin-bottom:16px;
   }
+
+  /* ---------- welcome popup ---------- */
+  .modal-overlay{
+    position:fixed;inset:0;z-index:50;
+    background:rgba(10,12,14,.8);
+    backdrop-filter:blur(3px);
+    display:flex;align-items:center;justify-content:center;
+    padding:20px;
+  }
+  .modal{
+    width:100%;max-width:360px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:28px 22px 22px;
+    text-align:center;
+    animation:pop .18s ease-out;
+  }
+  @keyframes pop{from{transform:scale(.95);opacity:0}to{transform:scale(1);opacity:1}}
+  .modal h2{
+    font-family:var(--font-display);
+    font-size:30px;font-weight:600;
+    letter-spacing:.03em;text-transform:none;
+    margin-bottom:16px;
+  }
+  .modal input{
+    width:100%;
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    border-radius:9px;
+    padding:12px 14px;
+    color:var(--chalk);
+    font:500 16px var(--font-body);
+    outline:none;
+    text-align:center;
+    margin-bottom:12px;
+  }
+  .modal input:focus{border-color:var(--chalk-dim)}
+  .modal input::placeholder{color:#5d646b;font-weight:400}
+  .modal .add-btn{margin-top:2px}
+  @media (prefers-reduced-motion: reduce){
+    .modal{animation:none}
+  }
+
   @media (prefers-reduced-motion: reduce){
     *{transition:none!important}
   }
 </style>
 </head>
 <body>
+<div class="modal-overlay" id="welcomeModal" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle">
+  <div class="modal">
+    <h2 id="welcomeTitle">Hi, who is there ?</h2>
+    <input id="welcomeName" type="text" placeholder="Your name" maxlength="40" autocomplete="off">
+    <button class="add-btn" id="welcomeGo" type="button">Let me in</button>
+  </div>
+</div>
 <div class="wrap">
 
   <header>
-    <div class="brand">The <span class="eight-six">86</span> Board</div>
+    <div class="brand">The <span class="eight-six">86</span></div>
     <p class="tagline">Flagged at close &middot; handled at open</p>
     <div class="conn" id="conn"><span class="dot"></span><span id="connText">Connecting to the board&hellip;</span></div>
   </header>
@@ -406,6 +457,22 @@
   }
   addBtn.addEventListener("click", addItem);
   itemInput.addEventListener("keydown", e => { if(e.key === "Enter") addItem(); });
+
+  /* ---------- welcome popup ---------- */
+  const welcomeModal = document.getElementById("welcomeModal");
+  const welcomeName = document.getElementById("welcomeName");
+  const welcomeGo = document.getElementById("welcomeGo");
+
+  function enterBoard(){
+    const n = welcomeName.value.trim();
+    if(!n){ welcomeName.focus(); return; }
+    whoInput.value = n;
+    welcomeModal.style.display = "none";
+    itemInput.focus();
+  }
+  welcomeGo.addEventListener("click", enterBoard);
+  welcomeName.addEventListener("keydown", e => { if(e.key === "Enter") enterBoard(); });
+  welcomeName.focus();
 
   /* ---------- live data ---------- */
   db.collection(COL).orderBy("createdAt","desc").limit(500).onSnapshot(
