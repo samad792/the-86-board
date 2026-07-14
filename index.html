@@ -1,253 +1,268 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The 86 Board</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg: #1b1713;
-    --surface: #241f19;
-    --surface-2: #2d2620;
-    --border: #3c332a;
-    --text: #f2ebdf;
-    --text-dim: #a89a86;
-    --text-faint: #756757;
-    --brass: #c48a4d;
-    --brass-dim: #8c6338;
-    --urgent: #c25c4e;
-    --urgent-dim: #7d3d33;
-    --done: #7a9473;
+    --board:#14171B;
+    --surface:#1D2228;
+    --surface-2:#242A31;
+    --line:#31383F;
+    --chalk:#EAE5D9;
+    --chalk-dim:#9BA1A6;
+    --urgent:#FF6B5E;
+    --normal:#F2B63C;
+    --low:#57B49F;
+    --radius:12px;
+    --font-display:"Barlow Condensed", "Arial Narrow", sans-serif;
+    --font-body:"Inter", -apple-system, system-ui, sans-serif;
   }
-  *{ box-sizing: border-box; margin:0; padding:0; }
-  html,body{ height:100%; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
   body{
-    background:
-      radial-gradient(1200px 600px at 20% -10%, rgba(196,138,77,0.06), transparent 60%),
-      var(--bg);
-    color: var(--text);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    min-height: 100vh;
-    padding: 28px 16px 80px;
+    background:var(--board);
+    color:var(--chalk);
+    font-family:var(--font-body);
+    font-size:15px;
+    line-height:1.5;
+    min-height:100vh;
+    background-image:radial-gradient(ellipse at 50% -10%, rgba(255,255,255,.045), transparent 60%);
   }
-  .wrap{ max-width: 640px; margin: 0 auto; }
+  .wrap{max-width:640px;margin:0 auto;padding:28px 16px 80px}
 
-  header{ margin-bottom: 22px; display:flex; align-items:flex-end; justify-content:space-between; gap:12px; }
-  h1{
-    font-family: 'Zilla Slab', Georgia, serif;
-    font-weight: 700;
-    font-size: 30px;
-    letter-spacing: 0.5px;
-    color: var(--text);
-    line-height: 1;
+  /* ---------- header ---------- */
+  header{margin-bottom:26px}
+  .brand{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:44px;
+    letter-spacing:.04em;
+    line-height:1;
+    text-transform:uppercase;
   }
-  h1 span{ color: var(--brass); }
-  .subtitle{ color: var(--text-dim); font-size: 13px; margin-top: 6px; letter-spacing: 0.2px; }
-  .clock{ font-family:'IBM Plex Mono', monospace; font-size:12px; color: var(--text-faint); text-align:right; white-space:nowrap; }
-
-  .card{
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-  }
-
-  /* ---- Add form ---- */
-  .add-form{ padding: 16px; margin-bottom: 26px; }
-  .add-row{ display:flex; gap:8px; }
-  .add-row input[type=text]{
-    flex:1;
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    color: var(--text);
-    border-radius: 7px;
-    padding: 11px 12px;
-    font-size: 15px;
-    font-family: inherit;
-    outline: none;
-  }
-  .add-row input[type=text]::placeholder{ color: var(--text-faint); }
-  .add-row input[type=text]:focus{ border-color: var(--brass-dim); }
-
-  .add-btn{
-    background: var(--brass);
-    color: #201a13;
-    border: none;
-    border-radius: 7px;
-    padding: 0 18px;
-    font-weight: 600;
-    font-size: 14px;
-    cursor: pointer;
-    transition: background 0.15s ease;
-  }
-  .add-btn:hover{ background: #d69a5c; }
-  .add-btn:disabled{ background: var(--surface-2); color: var(--text-faint); cursor: not-allowed; }
-
-  #noteInput{
-    width:100%;
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    color: var(--text-dim);
-    border-radius: 7px;
-    padding: 9px 12px;
-    font-size: 13.5px;
-    font-family: inherit;
-    outline: none;
-    resize: none;
-    margin-top: 8px;
-    line-height: 1.4;
-    min-height: 38px;
-    transition: border-color 0.15s ease;
-  }
-  #noteInput::placeholder{ color: var(--text-faint); }
-  #noteInput:focus{ border-color: var(--brass-dim); color: var(--text); }
-
-  .add-options{ display:flex; align-items:center; gap: 14px; margin-top: 12px; flex-wrap: wrap; }
-
-  .seg{ display:flex; border: 1px solid var(--border); border-radius: 7px; overflow:hidden; }
-  .seg button{
-    background: transparent; border:none; color: var(--text-dim);
-    font-family: inherit; font-size: 12.5px; font-weight: 500;
-    padding: 7px 12px; cursor:pointer; letter-spacing:0.3px;
-    border-right: 1px solid var(--border);
-  }
-  .seg button:last-child{ border-right:none; }
-  .seg button.active-normal{ background: var(--surface-2); color: var(--text); }
-  .seg button.active-urgent{ background: var(--urgent-dim); color: #ffdcd6; }
-
-  select#category{
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    color: var(--text-dim);
-    border-radius: 7px;
-    padding: 7px 10px;
-    font-size: 12.5px;
-    font-family: inherit;
-    outline: none;
-  }
-
-  /* ---- Section labels ---- */
-  .section-label{
-    font-family:'IBM Plex Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--text-faint);
-    margin: 0 4px 10px;
-    display:flex; align-items:center; justify-content:space-between;
-  }
-  .clear-link{
-    color: var(--text-faint); background:none; border:none; cursor:pointer;
-    font-family:'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.5px;
-    text-decoration: underline; text-underline-offset: 3px;
-  }
-  .clear-link:hover{ color: var(--text-dim); }
-
-  .list{ display:flex; flex-direction:column; gap: 10px; margin-bottom: 30px; }
-
-  /* ---- Ticket card ---- */
-  .ticket{
+  .brand .eight-six{
+    color:var(--urgent);
+    padding:0 6px;
     position:relative;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-left: 3px solid var(--brass-dim);
-    border-radius: 8px;
-    padding: 13px 14px 13px 16px;
-    display:flex;
-    gap: 12px;
-    align-items:flex-start;
-    animation: slideIn 0.25s ease;
   }
-  .ticket.urgent{ border-left-color: var(--urgent); }
-  .ticket.done{ opacity: 0.5; border-left-color: var(--done); }
-  @keyframes slideIn{ from{ opacity:0; transform: translateY(-4px);} to{ opacity:1; transform:translateY(0);} }
+  .brand .eight-six::after{
+    content:"";
+    position:absolute;left:2px;right:2px;bottom:-6px;height:3px;
+    background:var(--urgent);
+    border-radius:2px;
+    transform:rotate(-1.2deg);
+    opacity:.85;
+  }
+  .tagline{
+    color:var(--chalk-dim);
+    font-size:13px;
+    margin-top:12px;
+    letter-spacing:.02em;
+  }
+  .conn{
+    display:inline-flex;align-items:center;gap:6px;
+    font-size:12px;color:var(--chalk-dim);margin-top:6px;
+  }
+  .conn .dot{width:7px;height:7px;border-radius:50%;background:#555;flex:none}
+  .conn.ok .dot{background:var(--low)}
+  .conn.err .dot{background:var(--urgent)}
 
-  .resolve-btn{
-    flex-shrink:0;
-    width: 22px; height: 22px;
-    border-radius: 50%;
-    border: 1.5px solid var(--text-faint);
-    background: transparent;
+  /* ---------- name ---------- */
+  .who{
+    display:flex;align-items:center;gap:10px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:10px 14px;
+    margin-bottom:14px;
+  }
+  .who label{font-size:13px;color:var(--chalk-dim);white-space:nowrap}
+  .who input{
+    flex:1;min-width:0;
+    background:transparent;border:none;outline:none;
+    color:var(--chalk);font:600 15px var(--font-body);
+  }
+  .who input::placeholder{color:#5d646b;font-weight:400}
+
+  /* ---------- add form ---------- */
+  .add-card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:16px 14px;
+    margin-bottom:34px;
+  }
+  .add-card input[type=text]{
+    width:100%;
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    border-radius:9px;
+    padding:12px 14px;
+    color:var(--chalk);
+    font:500 16px var(--font-body);
+    outline:none;
+  }
+  .add-card input[type=text]:focus{border-color:var(--chalk-dim)}
+  .add-card input::placeholder{color:#5d646b;font-weight:400}
+  .prio-row{display:flex;gap:8px;margin:12px 0}
+  .prio-btn{
+    flex:1;
+    font:600 13px var(--font-body);
+    letter-spacing:.03em;
+    padding:10px 0;
+    border-radius:9px;
+    border:1.5px solid var(--line);
+    background:transparent;
+    color:var(--chalk-dim);
     cursor:pointer;
-    margin-top: 2px;
-    display:flex; align-items:center; justify-content:center;
-    transition: all 0.15s ease;
+    transition:background .12s,border-color .12s,color .12s;
   }
-  .resolve-btn:hover{ border-color: var(--done); }
-  .ticket.done .resolve-btn{ background: var(--done); border-color: var(--done); }
-  .resolve-btn svg{ width:12px; height:12px; opacity:0; transition: opacity 0.15s ease; }
-  .ticket.done .resolve-btn svg{ opacity:1; }
-
-  .ticket-body{ flex:1; min-width:0; }
-  .ticket-text{ font-size: 15px; color: var(--text); line-height:1.4; word-break: break-word; }
-  .ticket.done .ticket-text{ text-decoration: line-through; color: var(--text-faint); }
-
-  .ticket-note{
-    font-size: 13px;
-    color: var(--text-dim);
-    line-height: 1.45;
-    margin-top: 4px;
-    padding-left: 10px;
-    border-left: 2px solid var(--border);
-    word-break: break-word;
-    white-space: pre-wrap;
+  .prio-btn:focus-visible{outline:2px solid var(--chalk);outline-offset:2px}
+  .prio-btn[data-p=low].sel{border-color:var(--low);color:var(--low);background:rgba(87,180,159,.12)}
+  .prio-btn[data-p=normal].sel{border-color:var(--normal);color:var(--normal);background:rgba(242,182,60,.12)}
+  .prio-btn[data-p=urgent].sel{border-color:var(--urgent);color:var(--urgent);background:rgba(255,107,94,.13)}
+  .add-btn{
+    width:100%;
+    font:700 16px var(--font-display);
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    padding:13px 0;
+    border:none;border-radius:9px;
+    background:var(--chalk);color:#15181C;
+    cursor:pointer;
   }
-  .ticket.done .ticket-note{ color: var(--text-faint); }
+  .add-btn:hover{background:#fff}
+  .add-btn:disabled{opacity:.4;cursor:not-allowed}
+  .add-btn:focus-visible{outline:2px solid var(--chalk);outline-offset:2px}
+  .form-hint{font-size:12px;color:var(--urgent);margin-top:8px;display:none}
 
-  .ticket-meta{ display:flex; align-items:center; gap:8px; margin-top: 6px; flex-wrap:wrap; }
+  /* ---------- date sections ---------- */
+  .day{margin-bottom:30px}
+  .day-head{
+    display:flex;align-items:baseline;gap:10px;
+    border-bottom:1px dashed var(--line);
+    padding-bottom:8px;margin-bottom:14px;
+  }
+  .day-head h2{
+    font-family:var(--font-display);
+    font-size:22px;font-weight:600;
+    letter-spacing:.05em;text-transform:uppercase;
+  }
+  .day-head .count{font-size:12px;color:var(--chalk-dim)}
+  .day-head .today-tag{
+    font:600 11px var(--font-body);
+    color:var(--board);background:var(--chalk);
+    border-radius:20px;padding:2px 9px;letter-spacing:.04em;
+  }
+
+  /* ---------- item cards ---------- */
+  .item{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-left:4px solid var(--line);
+    border-radius:10px;
+    padding:12px 14px;
+    margin-bottom:10px;
+  }
+  .item.p-urgent{border-left-color:var(--urgent)}
+  .item.p-normal{border-left-color:var(--normal)}
+  .item.p-low{border-left-color:var(--low)}
+  .item.done{opacity:.45}
+  .item.done .item-name{text-decoration:line-through}
+  .item-top{display:flex;align-items:flex-start;gap:10px}
+  .check{
+    flex:none;width:22px;height:22px;margin-top:1px;
+    border:1.5px solid var(--chalk-dim);
+    border-radius:6px;background:transparent;
+    cursor:pointer;color:transparent;
+    font-size:14px;line-height:1;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .item.done .check{background:var(--chalk);border-color:var(--chalk);color:var(--board)}
+  .check:focus-visible{outline:2px solid var(--chalk);outline-offset:2px}
+  .item-main{flex:1;min-width:0}
+  .item-name{font-weight:600;font-size:15.5px;overflow-wrap:anywhere}
+  .item-meta{font-size:12px;color:var(--chalk-dim);margin-top:2px}
   .tag{
-    font-family:'IBM Plex Mono', monospace;
-    font-size: 10.5px;
-    color: var(--text-faint);
-    letter-spacing: 0.3px;
+    flex:none;
+    font:700 11px var(--font-body);
+    letter-spacing:.06em;text-transform:uppercase;
+    border-radius:20px;padding:3px 10px;margin-top:2px;
   }
-  .stamp{
-    font-family:'IBM Plex Mono', monospace;
-    font-size: 10px;
-    font-weight: 500;
-    letter-spacing: 1.5px;
-    color: var(--urgent);
-    border: 1px solid var(--urgent-dim);
-    padding: 2px 6px;
-    border-radius: 4px;
-    transform: rotate(-2deg);
-    text-transform: uppercase;
-  }
+  .tag.urgent{color:var(--urgent);background:rgba(255,107,94,.14)}
+  .tag.normal{color:var(--normal);background:rgba(242,182,60,.14)}
+  .tag.low{color:var(--low);background:rgba(87,180,159,.14)}
 
-  .del-btn{
-    flex-shrink:0;
-    background:none; border:none; color: var(--text-faint);
-    cursor:pointer; font-size: 16px; padding: 2px 4px; line-height:1;
-    opacity: 0; transition: opacity 0.15s ease;
+  .note-block{margin-top:10px;padding-left:32px}
+  .note-text{
+    font-size:13.5px;color:var(--chalk);
+    background:var(--surface-2);
+    border-radius:8px;padding:9px 11px;
+    border:1px solid var(--line);
+    white-space:pre-wrap;overflow-wrap:anywhere;
   }
-  .ticket:hover .del-btn{ opacity: 0.6; }
-  .del-btn:hover{ opacity: 1 !important; color: var(--urgent); }
+  .note-label{font-size:11px;color:var(--chalk-dim);letter-spacing:.05em;text-transform:uppercase;margin-bottom:4px}
+  .note-add-btn,.note-edit-btn{
+    background:none;border:none;cursor:pointer;
+    color:var(--chalk-dim);font:500 12.5px var(--font-body);
+    padding:2px 0;text-decoration:underline;text-underline-offset:3px;
+  }
+  .note-add-btn:hover,.note-edit-btn:hover{color:var(--chalk)}
+  .note-add-btn:focus-visible,.note-edit-btn:focus-visible{outline:2px solid var(--chalk);outline-offset:2px}
+  .note-form textarea{
+    width:100%;min-height:64px;resize:vertical;
+    background:var(--surface-2);
+    border:1px solid var(--line);border-radius:8px;
+    color:var(--chalk);font:400 13.5px var(--font-body);
+    padding:9px 11px;outline:none;
+  }
+  .note-form textarea:focus{border-color:var(--chalk-dim)}
+  .note-form-actions{display:flex;gap:8px;margin-top:6px}
+  .btn-sm{
+    font:600 12.5px var(--font-body);
+    border-radius:7px;padding:6px 14px;cursor:pointer;border:1px solid var(--line);
+    background:var(--chalk);color:var(--board);
+  }
+  .btn-sm.ghost{background:transparent;color:var(--chalk-dim)}
+  .btn-sm:focus-visible{outline:2px solid var(--chalk);outline-offset:2px}
 
   .empty{
-    text-align:center;
-    padding: 34px 20px;
-    color: var(--text-faint);
-    font-size: 14px;
+    text-align:center;color:var(--chalk-dim);
+    padding:34px 10px;font-size:14px;
+    border:1px dashed var(--line);border-radius:var(--radius);
   }
-  .empty .big{ font-family:'Zilla Slab', serif; font-size: 17px; color: var(--text-dim); margin-bottom: 4px; }
-
-  .resolved-wrap.collapsed .list{ display:none; }
-  .resolved-toggle{
-    display:flex; align-items:center; gap:6px;
-    background:none; border:none; cursor:pointer;
-    color: var(--text-faint); font-family:'IBM Plex Mono', monospace;
-    font-size: 11px; letter-spacing:1.5px; text-transform:uppercase;
-    margin: 0 4px 10px;
+  .log-title{
+    font-family:var(--font-display);
+    font-size:16px;font-weight:600;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--chalk-dim);
+    margin:38px 0 16px;
+    display:flex;align-items:center;gap:12px;
   }
-  .resolved-toggle .chev{ transition: transform 0.15s ease; display:inline-block; }
-  .resolved-wrap.collapsed .chev{ transform: rotate(-90deg); }
+  .log-title::after{content:"";flex:1;height:1px;background:var(--line)}
+  details.day summary{
+    list-style:none;cursor:pointer;
+  }
+  details.day summary::-webkit-details-marker{display:none}
+  details.day summary .day-head{margin-bottom:0}
+  details.day[open] summary .day-head{margin-bottom:14px}
+  details.day summary .chev{margin-left:auto;color:var(--chalk-dim);font-size:12px;transition:transform .15s}
+  details.day[open] summary .chev{transform:rotate(90deg)}
 
-  footer{ text-align:center; color: var(--text-faint); font-size: 11.5px; margin-top: 10px; font-family:'IBM Plex Mono', monospace; }
-
-  @media (max-width: 420px){
-    h1{ font-size: 25px; }
-    .clock{ display:none; }
+  .banner{
+    display:none;
+    background:rgba(255,107,94,.1);
+    border:1px solid rgba(255,107,94,.4);
+    color:var(--chalk);
+    border-radius:var(--radius);
+    padding:12px 14px;font-size:13px;margin-bottom:16px;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none!important}
   }
 </style>
 </head>
@@ -255,207 +270,303 @@
 <div class="wrap">
 
   <header>
-    <div>
-      <h1>The <span>86</span> Board</h1>
-      <div class="subtitle">Leave it here for whoever opens next.</div>
-    </div>
-    <div class="clock" id="clock"></div>
+    <div class="brand">The <span class="eight-six">86</span> Board</div>
+    <p class="tagline">Flagged at close &middot; handled at open</p>
+    <div class="conn" id="conn"><span class="dot"></span><span id="connText">Connecting to the board&hellip;</span></div>
   </header>
 
-  <div class="card add-form">
-    <div class="add-row">
-      <input type="text" id="itemInput" placeholder="e.g. Golden syrup almost out" maxlength="140" />
-      <button class="add-btn" id="addBtn" disabled>Add</button>
+  <div class="banner" id="banner"></div>
+
+  <div class="who">
+    <label for="whoInput">Logged by</label>
+    <input id="whoInput" type="text" placeholder="Your name" maxlength="40" autocomplete="off">
+  </div>
+
+  <div class="add-card">
+    <input id="itemInput" type="text" placeholder="What needs attention? e.g. Golden syrup almost out" maxlength="120" autocomplete="off">
+    <div class="prio-row" role="group" aria-label="Priority">
+      <button class="prio-btn" data-p="low" type="button">Low</button>
+      <button class="prio-btn sel" data-p="normal" type="button">Normal</button>
+      <button class="prio-btn" data-p="urgent" type="button">Urgent</button>
     </div>
-    <textarea id="noteInput" placeholder="Add a note (optional) — where to find it, who to call, anything the opener should know" maxlength="300" rows="1"></textarea>
-    <div class="add-options">
-      <div class="seg" id="prioritySeg">
-        <button data-val="normal" class="active-normal">Normal</button>
-        <button data-val="urgent">Urgent</button>
-      </div>
-      <select id="category">
-        <option value="stock">Stock</option>
-        <option value="garnish">Garnish / Prep</option>
-        <option value="equipment">Equipment</option>
-        <option value="cleaning">Cleaning</option>
-        <option value="other">Other</option>
-      </select>
-    </div>
+    <button class="add-btn" id="addBtn" type="button">Add to the board</button>
+    <p class="form-hint" id="formHint"></p>
   </div>
 
-  <div class="section-label">On the board</div>
-  <div class="list" id="openList"></div>
-  <div class="empty" id="emptyState" style="display:none;">
-    <div class="big">Board's clear.</div>
-    Nothing waiting for the opener right now.
-  </div>
+  <section id="todaySection"></section>
 
-  <div class="resolved-wrap collapsed" id="resolvedWrap">
-    <button class="resolved-toggle" id="resolvedToggle">
-      <span class="chev">▾</span> <span id="resolvedCount">Cleared (0)</span>
-    </button>
-    <div class="list" id="resolvedList"></div>
-  </div>
+  <div class="log-title" id="logTitle" style="display:none">Previous closes</div>
+  <section id="logSection"></section>
 
-  <footer id="footerMsg">syncing…</footer>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.12.4/firebase-app-compat.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.12.4/firebase-firestore-compat.min.js"></script>
 <script>
-const CATEGORY_LABEL = {
-  stock: 'Stock', garnish: 'Garnish / Prep', equipment: 'Equipment', cleaning: 'Cleaning', other: 'Other'
-};
-const STORAGE_KEY = 'eightysix-flags';
-let flags = [];
-let priority = 'normal';
+(function(){
+  "use strict";
 
-const itemInput = document.getElementById('itemInput');
-const noteInput = document.getElementById('noteInput');
-const addBtn = document.getElementById('addBtn');
-const categorySel = document.getElementById('category');
-const prioritySeg = document.getElementById('prioritySeg');
-const openList = document.getElementById('openList');
-const resolvedList = document.getElementById('resolvedList');
-const resolvedWrap = document.getElementById('resolvedWrap');
-const resolvedToggle = document.getElementById('resolvedToggle');
-const resolvedCount = document.getElementById('resolvedCount');
-const emptyState = document.getElementById('emptyState');
-const footerMsg = document.getElementById('footerMsg');
-const clockEl = document.getElementById('clock');
+  const firebaseConfig = {
+    apiKey: "AIzaSyCe1Y0C63z57hHB2iB-DA-fXXxRkaiOI5s",
+    authDomain: "the-86-board.firebaseapp.com",
+    projectId: "the-86-board",
+    storageBucket: "the-86-board.firebasestorage.app",
+    messagingSenderId: "1041988989337",
+    appId: "1:1041988989337:web:1f32563c4567be0e556308",
+    measurementId: "G-6Z2LKQHE1M"
+  };
 
-function tickClock(){
-  clockEl.textContent = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-}
-tickClock();
-setInterval(tickClock, 30000);
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  const COL = "board_items";
 
-prioritySeg.addEventListener('click', (e) => {
-  const btn = e.target.closest('button');
-  if(!btn) return;
-  priority = btn.dataset.val;
-  [...prioritySeg.children].forEach(b => b.classList.remove('active-normal','active-urgent'));
-  btn.classList.add(priority === 'urgent' ? 'active-urgent' : 'active-normal');
-});
+  /* ---------- helpers ---------- */
 
-itemInput.addEventListener('input', () => {
-  addBtn.disabled = itemInput.value.trim().length === 0;
-});
-itemInput.addEventListener('keydown', (e) => {
-  if(e.key === 'Enter' && !addBtn.disabled) addFlag();
-});
-addBtn.addEventListener('click', addFlag);
-
-noteInput.addEventListener('input', () => {
-  noteInput.style.height = 'auto';
-  noteInput.style.height = noteInput.scrollHeight + 'px';
-});
-
-resolvedToggle.addEventListener('click', () => {
-  resolvedWrap.classList.toggle('collapsed');
-});
-
-async function loadFlags(){
-  try{
-    const res = await window.storage.get(STORAGE_KEY, true);
-    flags = res && res.value ? JSON.parse(res.value) : [];
-  }catch(err){
-    flags = [];
+  // A close that runs past midnight still belongs to the previous
+  // evening's shift, so anything logged before 6am counts as the
+  // prior day's close.
+  function shiftDateKey(d){
+    const shifted = new Date(d.getTime() - 6*60*60*1000);
+    const y = shifted.getFullYear();
+    const m = String(shifted.getMonth()+1).padStart(2,"0");
+    const day = String(shifted.getDate()).padStart(2,"0");
+    return y + "-" + m + "-" + day;
   }
-  render();
-  footerMsg.textContent = 'shared board · visible to everyone on shift';
-}
-
-async function saveFlags(){
-  try{
-    await window.storage.set(STORAGE_KEY, JSON.stringify(flags), true);
-  }catch(err){
-    footerMsg.textContent = 'could not save — check connection';
+  function prettyDate(key){
+    const [y,m,d] = key.split("-").map(Number);
+    return new Date(y, m-1, d).toLocaleDateString("en-GB",
+      {weekday:"short", day:"numeric", month:"short", year:"numeric"});
   }
-}
+  function prettyTime(ts){
+    if(!ts || !ts.toDate) return "";
+    return ts.toDate().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
+  }
+  function esc(s){
+    return String(s).replace(/[&<>"']/g, c => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    }[c]));
+  }
+  const PRIO_ORDER = {urgent:0, normal:1, low:2};
 
-function addFlag(){
-  const text = itemInput.value.trim();
-  if(!text) return;
-  flags.unshift({
-    id: 'f' + Date.now() + Math.random().toString(36).slice(2,6),
-    text,
-    note: noteInput.value.trim(),
-    category: categorySel.value,
-    priority,
-    done: false,
-    createdAt: Date.now(),
-    resolvedAt: null
+  /* ---------- state ---------- */
+  let selectedPriority = "normal";
+  let items = [];
+  let openNoteForms = new Set();   // item ids with an open note editor
+  let noteDrafts = {};             // in-progress note text, survives live re-renders
+  let openDays = new Set();        // expanded past-date sections
+  const connEl = document.getElementById("conn");
+  const connText = document.getElementById("connText");
+  const banner = document.getElementById("banner");
+
+  /* ---------- priority buttons ---------- */
+  document.querySelectorAll(".prio-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      selectedPriority = btn.dataset.p;
+      document.querySelectorAll(".prio-btn").forEach(b => b.classList.toggle("sel", b === btn));
+    });
   });
-  itemInput.value = '';
-  noteInput.value = '';
-  noteInput.style.height = 'auto';
-  addBtn.disabled = true;
-  render();
-  saveFlags();
-}
 
-function toggleDone(id){
-  const f = flags.find(f => f.id === id);
-  if(!f) return;
-  f.done = !f.done;
-  f.resolvedAt = f.done ? Date.now() : null;
-  render();
-  saveFlags();
-}
+  /* ---------- add item ---------- */
+  const itemInput = document.getElementById("itemInput");
+  const whoInput = document.getElementById("whoInput");
+  const addBtn = document.getElementById("addBtn");
+  const formHint = document.getElementById("formHint");
 
-function deleteFlag(id){
-  flags = flags.filter(f => f.id !== id);
-  render();
-  saveFlags();
-}
+  function showHint(msg){
+    formHint.textContent = msg;
+    formHint.style.display = "block";
+    setTimeout(() => { formHint.style.display = "none"; }, 3000);
+  }
 
-function timeLabel(ts){
-  return new Date(ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-}
+  async function addItem(){
+    const name = itemInput.value.trim();
+    const who = whoInput.value.trim();
+    if(!who){ showHint("Add your name first so the opener knows who logged it."); whoInput.focus(); return; }
+    if(!name){ showHint("Type what needs attention."); itemInput.focus(); return; }
 
-function ticketHTML(f){
-  const urgentClass = f.priority === 'urgent' ? ' urgent' : '';
-  const doneClass = f.done ? ' done' : '';
-  const stamp = f.priority === 'urgent' ? '<span class="stamp">Priority</span>' : '';
-  const timeText = f.done ? ('cleared ' + timeLabel(f.resolvedAt)) : ('left ' + timeLabel(f.createdAt));
-  const noteHTML = f.note ? `<div class="ticket-note">${escapeHTML(f.note)}</div>` : '';
-  return `
-    <div class="ticket${urgentClass}${doneClass}" data-id="${f.id}">
-      <button class="resolve-btn" onclick="toggleDone('${f.id}')" title="Mark done" aria-label="Mark done">
-        <svg viewBox="0 0 12 12" fill="none"><path d="M2 6L5 9L10 3" stroke="#201a13" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
-      <div class="ticket-body">
-        <div class="ticket-text">${escapeHTML(f.text)}</div>
-        ${noteHTML}
-        <div class="ticket-meta">
-          <span class="tag">${CATEGORY_LABEL[f.category] || 'Other'}</span>
-          <span class="tag">·</span>
-          <span class="tag">${timeText}</span>
-          ${stamp}
-        </div>
-      </div>
-      <button class="del-btn" onclick="deleteFlag('${f.id}')" title="Remove" aria-label="Remove">×</button>
-    </div>`;
-}
+    addBtn.disabled = true;
+    try{
+      await db.collection(COL).add({
+        name: name,
+        priority: selectedPriority,
+        note: "",
+        addedBy: who,
+        dateKey: shiftDateKey(new Date()),
+        done: false,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      itemInput.value = "";
+      itemInput.focus();
+    }catch(e){
+      showHint("Couldn't save — check your connection.");
+      console.error(e);
+    }finally{
+      addBtn.disabled = false;
+    }
+  }
+  addBtn.addEventListener("click", addItem);
+  itemInput.addEventListener("keydown", e => { if(e.key === "Enter") addItem(); });
 
-function escapeHTML(s){
-  const d = document.createElement('div');
-  d.textContent = s;
-  return d.innerHTML;
-}
+  /* ---------- live data ---------- */
+  db.collection(COL).orderBy("createdAt","desc").limit(500).onSnapshot(
+    snap => {
+      connEl.className = "conn ok";
+      connText.textContent = "Live — connected to the-86-board";
+      banner.style.display = "none";
+      items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      render();
+    },
+    err => {
+      connEl.className = "conn err";
+      connText.textContent = "Not connected";
+      banner.style.display = "block";
+      banner.textContent = err.code === "permission-denied"
+        ? "Firestore blocked the request. In the Firebase console, enable Cloud Firestore for project \u201Cthe-86-board\u201D and set its security rules to allow reads and writes."
+        : "Couldn't reach the database. Check your internet connection and refresh.";
+      console.error(err);
+    }
+  );
 
-function render(){
-  const open = flags.filter(f => !f.done)
-    .sort((a,b) => (b.priority==='urgent') - (a.priority==='urgent') || b.createdAt - a.createdAt);
-  const resolved = flags.filter(f => f.done).sort((a,b) => b.resolvedAt - a.resolvedAt);
+  /* ---------- render ---------- */
+  function itemCard(it){
+    const noteOpen = openNoteForms.has(it.id);
+    let noteHtml = "";
+    if(noteOpen){
+      noteHtml =
+        '<div class="note-block"><div class="note-form">' +
+          '<textarea id="ta-' + it.id + '" data-draft="' + it.id + '" placeholder="Closing note for the opener\u2026" maxlength="500">' + esc(noteDrafts[it.id] !== undefined ? noteDrafts[it.id] : (it.note || "")) + '</textarea>' +
+          '<div class="note-form-actions">' +
+            '<button class="btn-sm" data-act="save-note" data-id="' + it.id + '">Save note</button>' +
+            '<button class="btn-sm ghost" data-act="cancel-note" data-id="' + it.id + '">Cancel</button>' +
+          '</div>' +
+        '</div></div>';
+    } else if(it.note){
+      noteHtml =
+        '<div class="note-block">' +
+          '<div class="note-label">Closing note</div>' +
+          '<div class="note-text">' + esc(it.note) + '</div>' +
+          '<button class="note-edit-btn" data-act="open-note" data-id="' + it.id + '">Edit note</button>' +
+        '</div>';
+    } else {
+      noteHtml =
+        '<div class="note-block">' +
+          '<button class="note-add-btn" data-act="open-note" data-id="' + it.id + '">+ Leave a closing note</button>' +
+        '</div>';
+    }
+    return (
+      '<div class="item p-' + esc(it.priority) + (it.done ? " done" : "") + '">' +
+        '<div class="item-top">' +
+          '<button class="check" data-act="toggle-done" data-id="' + it.id + '" aria-label="' + (it.done ? "Mark as not handled" : "Mark as handled") + '">\u2713</button>' +
+          '<div class="item-main">' +
+            '<div class="item-name">' + esc(it.name) + '</div>' +
+            '<div class="item-meta">' + esc(it.addedBy || "") + (it.createdAt ? " \u00B7 " + prettyTime(it.createdAt) : "") + '</div>' +
+          '</div>' +
+          '<span class="tag ' + esc(it.priority) + '">' + esc(it.priority) + '</span>' +
+        '</div>' +
+        noteHtml +
+      '</div>'
+    );
+  }
 
-  openList.innerHTML = open.map(ticketHTML).join('');
-  resolvedList.innerHTML = resolved.map(ticketHTML).join('');
-  resolvedCount.textContent = `Cleared (${resolved.length})`;
-  resolvedWrap.style.display = resolved.length ? 'block' : 'none';
-  emptyState.style.display = open.length ? 'none' : 'block';
-}
+  function sortDay(list){
+    return list.slice().sort((a,b) => {
+      if(a.done !== b.done) return a.done ? 1 : -1;
+      const p = PRIO_ORDER[a.priority] - PRIO_ORDER[b.priority];
+      if(p !== 0) return p;
+      const ta = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
+      const tb = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
+      return tb - ta;
+    });
+  }
 
-loadFlags();
+  function render(){
+    const todayKey = shiftDateKey(new Date());
+    const byDay = {};
+    items.forEach(it => {
+      const k = it.dateKey || "unknown";
+      (byDay[k] = byDay[k] || []).push(it);
+    });
+
+    // today
+    const todaySection = document.getElementById("todaySection");
+    const todayItems = sortDay(byDay[todayKey] || []);
+    let html = '<div class="day"><div class="day-head">' +
+      '<h2>' + prettyDate(todayKey) + '</h2>' +
+      '<span class="today-tag">Tonight\u2019s close</span>' +
+      '<span class="count">' + todayItems.length + (todayItems.length === 1 ? " item" : " items") + '</span>' +
+      '</div>';
+    html += todayItems.length
+      ? todayItems.map(itemCard).join("")
+      : '<div class="empty">Nothing flagged yet. Anything running low or needed for the morning goes here.</div>';
+    html += '</div>';
+    todaySection.innerHTML = html;
+
+    // past days
+    const pastKeys = Object.keys(byDay).filter(k => k !== todayKey && k !== "unknown").sort().reverse();
+    document.getElementById("logTitle").style.display = pastKeys.length ? "flex" : "none";
+    const logSection = document.getElementById("logSection");
+    logSection.innerHTML = pastKeys.map(k => {
+      const list = sortDay(byDay[k]);
+      const open = openDays.has(k) ? " open" : "";
+      return '<details class="day" data-day="' + esc(k) + '"' + open + '>' +
+        '<summary><div class="day-head">' +
+          '<h2>' + prettyDate(k) + '</h2>' +
+          '<span class="count">' + list.length + (list.length === 1 ? " item" : " items") + '</span>' +
+          '<span class="chev">\u25B6</span>' +
+        '</div></summary>' +
+        list.map(itemCard).join("") +
+      '</details>';
+    }).join("");
+
+    // remember expanded/collapsed state of past days
+    logSection.querySelectorAll("details.day").forEach(d => {
+      d.addEventListener("toggle", () => {
+        const k = d.dataset.day;
+        if(d.open) openDays.add(k); else openDays.delete(k);
+      });
+    });
+  }
+
+  document.body.addEventListener("input", e => {
+    const ta = e.target.closest("textarea[data-draft]");
+    if(ta) noteDrafts[ta.dataset.draft] = ta.value;
+  });
+
+  /* ---------- delegated actions ---------- */
+  document.body.addEventListener("click", async e => {
+    const btn = e.target.closest("[data-act]");
+    if(!btn) return;
+    const id = btn.dataset.id;
+    const act = btn.dataset.act;
+
+    if(act === "open-note"){
+      openNoteForms.add(id);
+      render();
+      const ta = document.getElementById("ta-" + id);
+      if(ta){ ta.focus(); ta.selectionStart = ta.value.length; }
+    }
+    if(act === "cancel-note"){
+      openNoteForms.delete(id);
+      delete noteDrafts[id];
+      render();
+    }
+    if(act === "save-note"){
+      const ta = document.getElementById("ta-" + id);
+      const val = ta ? ta.value.trim() : "";
+      openNoteForms.delete(id);
+      delete noteDrafts[id];
+      try{ await db.collection(COL).doc(id).update({ note: val }); }
+      catch(err){ console.error(err); }
+      render();
+    }
+    if(act === "toggle-done"){
+      const it = items.find(x => x.id === id);
+      if(!it) return;
+      try{ await db.collection(COL).doc(id).update({ done: !it.done }); }
+      catch(err){ console.error(err); }
+    }
+  });
+})();
 </script>
 </body>
 </html>
