@@ -109,6 +109,38 @@
   }
   .add-card input[type=text]:focus{border-color:var(--chalk-dim)}
   .add-card input::placeholder{color:#5d646b;font-weight:400}
+  .form-note{
+    width:100%;
+    margin-top:10px;
+    min-height:56px;resize:vertical;
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    border-radius:9px;
+    padding:10px 14px;
+    color:var(--chalk);
+    font:400 14px var(--font-body);
+    outline:none;
+  }
+  .form-note:focus{border-color:var(--chalk-dim)}
+  .form-note::placeholder{color:#5d646b}
+  .del-btn{
+    flex:none;
+    background:none;border:none;cursor:pointer;
+    color:#5d646b;
+    font:600 16px var(--font-body);
+    line-height:1;
+    padding:4px 6px;margin-top:1px;
+    border-radius:6px;
+  }
+  .del-btn:hover{color:var(--urgent)}
+  .del-btn:focus-visible{outline:2px solid var(--chalk);outline-offset:2px}
+  .del-btn.confirm{
+    color:var(--urgent);
+    background:rgba(255,107,94,.14);
+    font-size:11px;font-weight:700;
+    letter-spacing:.04em;text-transform:uppercase;
+    padding:5px 9px;
+  }
   .prio-row{display:flex;gap:8px;margin:12px 0}
   .prio-btn{
     flex:1;
@@ -335,6 +367,7 @@
 
   <div class="add-card">
     <input id="itemInput" type="text" placeholder="What needs attention? e.g. Golden syrup almost out" maxlength="120" autocomplete="off">
+    <textarea id="noteInput" class="form-note" placeholder="Closing note for the opener (optional)" maxlength="500"></textarea>
     <div class="prio-row" role="group" aria-label="Priority">
       <button class="prio-btn" data-p="low" type="button">Low</button>
       <button class="prio-btn sel" data-p="normal" type="button">Normal</button>
@@ -419,6 +452,7 @@
 
   /* ---------- add item ---------- */
   const itemInput = document.getElementById("itemInput");
+  const noteInput = document.getElementById("noteInput");
   const whoInput = document.getElementById("whoInput");
   const addBtn = document.getElementById("addBtn");
   const formHint = document.getElementById("formHint");
@@ -440,13 +474,14 @@
       await db.collection(COL).add({
         name: name,
         priority: selectedPriority,
-        note: "",
+        note: noteInput.value.trim(),
         addedBy: who,
         dateKey: shiftDateKey(new Date()),
         done: false,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
       itemInput.value = "";
+      noteInput.value = "";
       itemInput.focus();
     }catch(e){
       showHint("Couldn't save — check your connection.");
@@ -478,7 +513,7 @@
   db.collection(COL).orderBy("createdAt","desc").limit(500).onSnapshot(
     snap => {
       connEl.className = "conn ok";
-      connText.textContent = "Live — connected to the-86-board";
+      connText.textContent = "Live";
       banner.style.display = "none";
       items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       render();
@@ -529,6 +564,7 @@
             '<div class="item-meta">' + esc(it.addedBy || "") + (it.createdAt ? " \u00B7 " + prettyTime(it.createdAt) : "") + '</div>' +
           '</div>' +
           '<span class="tag ' + esc(it.priority) + '">' + esc(it.priority) + '</span>' +
+          '<button class="del-btn" data-act="delete" data-id="' + it.id + '" aria-label="Delete item">\u2715</button>' +
         '</div>' +
         noteHtml +
       '</div>'
@@ -631,6 +667,25 @@
       if(!it) return;
       try{ await db.collection(COL).doc(id).update({ done: !it.done }); }
       catch(err){ console.error(err); }
+    }
+    if(act === "delete"){
+      if(!btn.classList.contains("confirm")){
+        btn.classList.add("confirm");
+        btn.textContent = "Sure?";
+        setTimeout(() => {
+          if(document.body.contains(btn)){
+            btn.classList.remove("confirm");
+            btn.textContent = "\u2715";
+          }
+        }, 3000);
+        return;
+      }
+      try{ await db.collection(COL).doc(id).delete(); }
+      catch(err){
+        console.error(err);
+        banner.style.display = "block";
+        banner.textContent = "Couldn't delete \u2014 your Firestore rules may be blocking deletes. Change \u201Callow delete: if false;\u201D to \u201Cif true;\u201D and publish.";
+      }
     }
   });
 })();
