@@ -173,6 +173,132 @@
   .add-btn:focus-visible{outline:2px solid var(--chalk);outline-offset:2px}
   .form-hint{font-size:12px;color:var(--urgent);margin-top:8px;display:none}
 
+  /* ---------- burger + sidebar ---------- */
+  header{position:relative}
+  .burger{
+    position:absolute;top:2px;right:0;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:9px;
+    color:var(--chalk);
+    font-size:20px;line-height:1;
+    padding:9px 12px;cursor:pointer;
+  }
+  .burger:hover{border-color:var(--chalk-dim)}
+  .burger:focus-visible{outline:2px solid var(--chalk);outline-offset:2px}
+  .burger .pend-dot{
+    position:absolute;top:-4px;right:-4px;
+    min-width:18px;height:18px;border-radius:10px;
+    background:var(--urgent);color:#fff;
+    font:700 11px/18px var(--font-body);
+    text-align:center;padding:0 4px;
+    display:none;
+  }
+  .sb-overlay{
+    position:fixed;inset:0;z-index:60;
+    background:rgba(10,12,14,.6);
+    backdrop-filter:blur(2px);
+    display:none;
+  }
+  .sb-overlay.show{display:block}
+  .sidebar{
+    position:fixed;top:0;right:0;bottom:0;z-index:61;
+    width:min(430px,94vw);
+    background:var(--board);
+    border-left:1px solid var(--line);
+    transform:translateX(105%);
+    transition:transform .2s ease-out;
+    overflow-y:auto;
+    padding:18px 16px 60px;
+  }
+  .sidebar.open{transform:none}
+  @media (prefers-reduced-motion: reduce){ .sidebar{transition:none} }
+  .sb-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .sb-head h2{
+    font-family:var(--font-display);
+    font-size:26px;font-weight:600;
+    letter-spacing:.05em;text-transform:uppercase;
+    flex:1;
+  }
+  .sb-close{
+    background:none;border:none;cursor:pointer;
+    color:var(--chalk-dim);font-size:18px;padding:6px 8px;border-radius:6px;
+  }
+  .sb-close:hover{color:var(--chalk)}
+  .sb-close:focus-visible{outline:2px solid var(--chalk);outline-offset:2px}
+
+  .mgr-box{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:10px 12px;margin-bottom:14px;
+  }
+  .mgr-row{display:flex;gap:8px;align-items:center}
+  .mgr-row input{
+    flex:1;min-width:0;
+    background:var(--surface-2);
+    border:1px solid var(--line);border-radius:8px;
+    padding:9px 12px;color:var(--chalk);
+    font:500 15px var(--font-body);outline:none;
+    letter-spacing:.2em;
+  }
+  .mgr-row input:focus{border-color:var(--chalk-dim)}
+  .mgr-on{display:flex;align-items:center;gap:8px;font-size:13px}
+  .mgr-on .mdot{width:8px;height:8px;border-radius:50%;background:var(--low)}
+  .mgr-on .lock-btn{margin-left:auto}
+  .mgr-err{font-size:12px;color:var(--urgent);margin-top:6px;display:none}
+
+  .sb-add{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:12px;margin-bottom:20px;
+  }
+  .sb-add input{
+    width:100%;
+    background:var(--surface-2);
+    border:1px solid var(--line);border-radius:8px;
+    padding:10px 12px;color:var(--chalk);
+    font:500 15px var(--font-body);outline:none;
+  }
+  .sb-add input:focus,.sb-add textarea:focus{border-color:var(--chalk-dim)}
+  .sb-add input::placeholder,.sb-add textarea::placeholder{color:#5d646b;font-weight:400}
+  .sb-add textarea{
+    width:100%;margin-top:8px;min-height:48px;resize:vertical;
+    background:var(--surface-2);
+    border:1px solid var(--line);border-radius:8px;
+    padding:9px 12px;color:var(--chalk);
+    font:400 13.5px var(--font-body);outline:none;
+  }
+  .sb-add .add-btn{margin-top:10px;padding:11px 0;font-size:15px}
+
+  .st{
+    flex:none;
+    font:700 10.5px var(--font-body);
+    letter-spacing:.06em;text-transform:uppercase;
+    border-radius:20px;padding:3px 9px;margin-top:2px;
+  }
+  .st.pending{color:var(--normal);background:rgba(242,182,60,.14)}
+  .st.approved{color:var(--low);background:rgba(87,180,159,.14)}
+  .st.rejected{color:var(--urgent);background:rgba(255,107,94,.14)}
+  .inv-group-label{
+    font:600 12px var(--font-body);
+    letter-spacing:.1em;text-transform:uppercase;
+    color:var(--chalk-dim);
+    margin:18px 0 8px;
+  }
+  .decide-row{display:flex;gap:8px;margin-top:10px;padding-left:0}
+  .decide-btn{
+    flex:1;font:600 13px var(--font-body);
+    padding:8px 0;border-radius:8px;cursor:pointer;
+    border:1.5px solid var(--line);background:transparent;
+  }
+  .decide-btn.ok{color:var(--low);border-color:var(--low)}
+  .decide-btn.ok:hover{background:rgba(87,180,159,.12)}
+  .decide-btn.no{color:var(--urgent);border-color:var(--urgent)}
+  .decide-btn.no:hover{background:rgba(255,107,94,.12)}
+  .decide-btn:focus-visible{outline:2px solid var(--chalk);outline-offset:2px}
+
   /* ---------- date sections ---------- */
   .day{margin-bottom:30px}
   .day-head{
@@ -356,6 +482,7 @@
     <div class="brand">The <span class="eight-six">86</span></div>
     <p class="tagline">Flagged at close &middot; handled at open</p>
     <div class="conn" id="conn"><span class="dot"></span><span id="connText">Connecting to the board&hellip;</span></div>
+    <button class="burger" id="burgerBtn" type="button" aria-label="Open inventory needs" aria-expanded="false">&#9776;<span class="pend-dot" id="pendDot"></span></button>
   </header>
 
   <div class="banner" id="banner"></div>
@@ -383,6 +510,25 @@
   <section id="logSection"></section>
 
 </div>
+
+<div class="sb-overlay" id="sbOverlay"></div>
+<aside class="sidebar" id="sidebar" aria-label="Inventory needs" aria-hidden="true">
+  <div class="sb-head">
+    <h2>Inventory needs</h2>
+    <button class="sb-close" id="sbClose" type="button" aria-label="Close inventory panel">&#10005;</button>
+  </div>
+
+  <div class="mgr-box" id="mgrBox"></div>
+
+  <div class="sb-add">
+    <input id="invInput" type="text" placeholder="What does the bar need? e.g. Old fashioned glasses" maxlength="120" autocomplete="off">
+    <textarea id="invNote" placeholder="Details (optional) &mdash; brand, size, quantity" maxlength="500"></textarea>
+    <button class="add-btn" id="invAddBtn" type="button">Request it</button>
+    <p class="form-hint" id="invHint"></p>
+  </div>
+
+  <section id="invSection"></section>
+</aside>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.12.4/firebase-app-compat.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.12.4/firebase-firestore-compat.min.js"></script>
@@ -432,12 +578,89 @@
   /* ---------- state ---------- */
   let selectedPriority = "normal";
   let items = [];
+  let managerMode = false;         // unlocked with the manager code, this session only
+  let openDecisions = {};          // inv item id -> "approve" | "reject" (note form open)
+  let decisionDrafts = {};         // in-progress decision notes, survive re-renders
   let openNoteForms = new Set();   // item ids with an open note editor
   let noteDrafts = {};             // in-progress note text, survives live re-renders
   let openDays = new Set();        // expanded past-date sections
   const connEl = document.getElementById("conn");
   const connText = document.getElementById("connText");
   const banner = document.getElementById("banner");
+
+  /* ---------- sidebar ---------- */
+  const sidebar = document.getElementById("sidebar");
+  const sbOverlay = document.getElementById("sbOverlay");
+  const burgerBtn = document.getElementById("burgerBtn");
+  const pendDot = document.getElementById("pendDot");
+  const mgrBox = document.getElementById("mgrBox");
+
+  function openSidebar(){
+    sidebar.classList.add("open");
+    sbOverlay.classList.add("show");
+    sidebar.setAttribute("aria-hidden","false");
+    burgerBtn.setAttribute("aria-expanded","true");
+  }
+  function closeSidebar(){
+    sidebar.classList.remove("open");
+    sbOverlay.classList.remove("show");
+    sidebar.setAttribute("aria-hidden","true");
+    burgerBtn.setAttribute("aria-expanded","false");
+  }
+  burgerBtn.addEventListener("click", openSidebar);
+  document.getElementById("sbClose").addEventListener("click", closeSidebar);
+  sbOverlay.addEventListener("click", closeSidebar);
+  document.addEventListener("keydown", e => {
+    if(e.key === "Escape" && sidebar.classList.contains("open")) closeSidebar();
+  });
+
+  /* ---------- manager auth ---------- */
+  // Only a hash of the manager code is stored here, so the code
+  // can't be read out of the page source. Note this gates the UI,
+  // not the database itself.
+  const MGR_HASH = "05744ee6ac5e4d4d6fe17c3a30ff222ac662743a1753c992914ca8a034ae9f66";
+
+  async function sha256hex(s){
+    const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,"0")).join("");
+  }
+
+  function renderMgrBox(){
+    if(managerMode){
+      mgrBox.innerHTML =
+        '<div class="mgr-on"><span class="mdot"></span>Manager mode &mdash; you can approve or reject requests' +
+        '<button class="btn-sm ghost lock-btn" data-act="mgr-lock">Lock</button></div>';
+    }else{
+      mgrBox.innerHTML =
+        '<div class="mgr-row">' +
+          '<input id="mgrPin" type="password" inputmode="numeric" placeholder="Manager code" maxlength="12" autocomplete="off" aria-label="Manager code">' +
+          '<button class="btn-sm" data-act="mgr-unlock">Unlock</button>' +
+        '</div>' +
+        '<p class="mgr-err" id="mgrErr">That code isn&rsquo;t right.</p>';
+      const pin = document.getElementById("mgrPin");
+      pin.addEventListener("keydown", e => { if(e.key === "Enter") tryUnlock(); });
+    }
+  }
+
+  async function tryUnlock(){
+    const pin = document.getElementById("mgrPin");
+    const err = document.getElementById("mgrErr");
+    if(!pin || !pin.value) return;
+    let hex = "";
+    try{ hex = await sha256hex(pin.value.trim()); }
+    catch(e){ console.error(e); }
+    if(hex === MGR_HASH){
+      managerMode = true;
+      renderMgrBox();
+      renderInventory();
+    }else{
+      pin.value = "";
+      if(err) err.style.display = "block";
+      setTimeout(() => { if(err) err.style.display = "none"; }, 2500);
+    }
+  }
+
+  renderMgrBox();
 
   /* ---------- priority buttons ---------- */
   document.querySelectorAll(".prio-btn").forEach(btn => {
@@ -470,6 +693,7 @@
     try{
       await db.collection(COL).add({
         name: name,
+        type: "close",
         priority: selectedPriority,
         note: noteInput.value.trim(),
         addedBy: who,
@@ -489,6 +713,51 @@
   }
   addBtn.addEventListener("click", addItem);
   itemInput.addEventListener("keydown", e => { if(e.key === "Enter") addItem(); });
+
+  /* ---------- inventory requests ---------- */
+  const invInput = document.getElementById("invInput");
+  const invNote = document.getElementById("invNote");
+  const invAddBtn = document.getElementById("invAddBtn");
+  const invHint = document.getElementById("invHint");
+
+  function showInvHint(msg){
+    invHint.textContent = msg;
+    invHint.style.display = "block";
+    setTimeout(() => { invHint.style.display = "none"; }, 3000);
+  }
+
+  async function addInvItem(){
+    const name = invInput.value.trim();
+    const who = whoInput.value.trim();
+    if(!who){ showInvHint("Add your name on the main board first."); return; }
+    if(!name){ showInvHint("Type what the bar needs."); invInput.focus(); return; }
+
+    invAddBtn.disabled = true;
+    try{
+      await db.collection(COL).add({
+        name: name,
+        type: "bar",
+        status: "pending",
+        managerNote: "",
+        priority: "normal",
+        note: invNote.value.trim(),
+        addedBy: who,
+        dateKey: shiftDateKey(new Date()),
+        done: false,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      invInput.value = "";
+      invNote.value = "";
+      invInput.focus();
+    }catch(e){
+      showInvHint("Couldn't save — check your connection.");
+      console.error(e);
+    }finally{
+      invAddBtn.disabled = false;
+    }
+  }
+  invAddBtn.addEventListener("click", addInvItem);
+  invInput.addEventListener("keydown", e => { if(e.key === "Enter") addInvItem(); });
 
   /* ---------- welcome popup ---------- */
   const welcomeModal = document.getElementById("welcomeModal");
@@ -590,9 +859,12 @@
   }
 
   function render(){
+    // items without a type are older entries from before inventory existed
+    const closeItems = items.filter(it => (it.type || "close") !== "bar");
+
     const todayKey = shiftDateKey(new Date());
     const byDay = {};
-    items.forEach(it => {
+    closeItems.forEach(it => {
       const k = it.dateKey || "unknown";
       (byDay[k] = byDay[k] || []).push(it);
     });
@@ -635,11 +907,105 @@
         if(d.open) openDays.add(k); else openDays.delete(k);
       });
     });
+
+    renderInventory();
+  }
+
+  function invCard(it){
+    const status = it.status || "pending";
+    const decision = openDecisions[it.id];
+
+    let bodyHtml = "";
+    if(it.note){
+      bodyHtml +=
+        '<div class="note-block">' +
+          '<div class="note-label">Request details</div>' +
+          '<div class="note-text">' + esc(it.note) + '</div>' +
+        '</div>';
+    }
+    if(status !== "pending" && it.managerNote){
+      bodyHtml +=
+        '<div class="note-block">' +
+          '<div class="note-label">' + (status === "approved" ? "Order confirmation" : "Rejection note") + '</div>' +
+          '<div class="note-text">' + esc(it.managerNote) + '</div>' +
+        '</div>';
+    }
+    if(decision){
+      const approving = decision === "approve";
+      bodyHtml +=
+        '<div class="note-block"><div class="note-form">' +
+          '<textarea id="dta-' + it.id + '" data-decdraft="' + it.id + '" placeholder="' +
+            (approving ? "Order confirmation \u2014 e.g. Ordered from BestBar, arriving Friday (optional)"
+                       : "Reason for rejection \u2014 e.g. Too pricey this month (optional)") +
+          '" maxlength="500">' + esc(decisionDrafts[it.id] || "") + '</textarea>' +
+          '<div class="note-form-actions">' +
+            '<button class="btn-sm" data-act="decide-save" data-id="' + it.id + '">' + (approving ? "Approve request" : "Reject request") + '</button>' +
+            '<button class="btn-sm ghost" data-act="decide-cancel" data-id="' + it.id + '">Cancel</button>' +
+          '</div>' +
+        '</div></div>';
+    } else if(managerMode && status === "pending"){
+      bodyHtml +=
+        '<div class="decide-row">' +
+          '<button class="decide-btn ok" data-act="decide-open" data-mode="approve" data-id="' + it.id + '">Approve</button>' +
+          '<button class="decide-btn no" data-act="decide-open" data-mode="reject" data-id="' + it.id + '">Reject</button>' +
+        '</div>';
+    }
+
+    // received tick only makes sense once a request is approved
+    const checkHtml = status === "approved"
+      ? '<button class="check" data-act="toggle-done" data-id="' + it.id + '" aria-label="' + (it.done ? "Mark as not received" : "Mark as received") + '">\u2713</button>'
+      : "";
+
+    return (
+      '<div class="item p-' + esc(it.priority || "normal") + (it.done ? " done" : "") + '">' +
+        '<div class="item-top">' +
+          checkHtml +
+          '<div class="item-main">' +
+            '<div class="item-name">' + esc(it.name) + '</div>' +
+            '<div class="item-meta">' + esc(it.addedBy || "") +
+              (it.dateKey ? " \u00B7 " + prettyDate(it.dateKey) : "") +
+              (it.createdAt ? " \u00B7 " + prettyTime(it.createdAt) : "") +
+              (status === "approved" && it.done ? " \u00B7 received" : "") + '</div>' +
+          '</div>' +
+          '<span class="st ' + esc(status) + '">' + esc(status) + '</span>' +
+          (managerMode ? '<button class="del-btn" data-act="delete" data-id="' + it.id + '" aria-label="Delete request">\u2715</button>' : "") +
+        '</div>' +
+        bodyHtml +
+      '</div>'
+    );
+  }
+
+  function renderInventory(){
+    const invItems = items.filter(it => it.type === "bar");
+    const byTime = list => list.slice().sort((a,b) => {
+      const ta = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
+      const tb = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
+      return tb - ta;
+    });
+    const pending = byTime(invItems.filter(it => (it.status || "pending") === "pending"));
+    const approved = byTime(invItems.filter(it => it.status === "approved"));
+    const rejected = byTime(invItems.filter(it => it.status === "rejected"));
+
+    // pending counter on the burger button
+    pendDot.textContent = pending.length;
+    pendDot.style.display = pending.length ? "block" : "none";
+
+    let html = "";
+    if(!invItems.length){
+      html = '<div class="empty">No requests yet. Glassware, coffee beans, staff supplies \u2014 anything the bar needs goes here for the manager to approve.</div>';
+    }else{
+      if(pending.length) html += '<div class="inv-group-label">Awaiting approval (' + pending.length + ')</div>' + pending.map(invCard).join("");
+      if(approved.length) html += '<div class="inv-group-label">Approved</div>' + approved.map(invCard).join("");
+      if(rejected.length) html += '<div class="inv-group-label">Rejected</div>' + rejected.map(invCard).join("");
+    }
+    document.getElementById("invSection").innerHTML = html;
   }
 
   document.body.addEventListener("input", e => {
     const ta = e.target.closest("textarea[data-draft]");
     if(ta) noteDrafts[ta.dataset.draft] = ta.value;
+    const dta = e.target.closest("textarea[data-decdraft]");
+    if(dta) decisionDrafts[dta.dataset.decdraft] = dta.value;
   });
 
   /* ---------- delegated actions ---------- */
@@ -668,6 +1034,45 @@
       try{ await db.collection(COL).doc(id).update({ note: val }); }
       catch(err){ console.error(err); }
       render();
+    }
+    if(act === "mgr-unlock"){ tryUnlock(); }
+    if(act === "mgr-lock"){
+      managerMode = false;
+      openDecisions = {};
+      decisionDrafts = {};
+      renderMgrBox();
+      renderInventory();
+    }
+    if(act === "decide-open"){
+      openDecisions[id] = btn.dataset.mode === "reject" ? "reject" : "approve";
+      renderInventory();
+      const dta = document.getElementById("dta-" + id);
+      if(dta) dta.focus();
+    }
+    if(act === "decide-cancel"){
+      delete openDecisions[id];
+      delete decisionDrafts[id];
+      renderInventory();
+    }
+    if(act === "decide-save"){
+      if(!managerMode) return;
+      const mode = openDecisions[id];
+      if(!mode) return;
+      const dta = document.getElementById("dta-" + id);
+      const val = dta ? dta.value.trim() : "";
+      delete openDecisions[id];
+      delete decisionDrafts[id];
+      try{
+        await db.collection(COL).doc(id).update({
+          status: mode === "approve" ? "approved" : "rejected",
+          managerNote: val
+        });
+      }catch(err){
+        console.error(err);
+        banner.style.display = "block";
+        banner.textContent = "Couldn't save the decision \u2014 check your connection or Firestore rules.";
+      }
+      renderInventory();
     }
     if(act === "toggle-done"){
       const it = items.find(x => x.id === id);
