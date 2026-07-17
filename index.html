@@ -299,6 +299,20 @@
   .decide-btn.no:hover{background:rgba(255,107,94,.12)}
   .decide-btn:focus-visible{outline:2px solid var(--chalk);outline-offset:2px}
 
+  /* ---------- notification bell ---------- */
+  .bell-btn{
+    position:absolute;top:2px;right:52px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:9px;
+    color:var(--chalk-dim);
+    font-size:17px;line-height:1;
+    padding:9px 11px;cursor:pointer;
+  }
+  .bell-btn:hover{border-color:var(--chalk-dim)}
+  .bell-btn:focus-visible{outline:2px solid var(--chalk);outline-offset:2px}
+  .bell-btn.on{color:var(--normal);border-color:var(--normal);background:rgba(242,182,60,.1)}
+
   /* ---------- date sections ---------- */
   .day{margin-bottom:30px}
   .day-head{
@@ -482,6 +496,7 @@
     <div class="brand">The <span class="eight-six">86</span></div>
     <p class="tagline">Flagged at close &middot; handled at open</p>
     <div class="conn" id="conn"><span class="dot"></span><span id="connText">Connecting to the board&hellip;</span></div>
+    <button class="bell-btn" id="bellBtn" type="button" aria-label="Toggle stock request notifications" aria-pressed="false" title="Notify me about stock requests">&#128277;</button>
     <button class="burger" id="burgerBtn" type="button" aria-label="Open inventory needs" aria-expanded="false">&#9776;<span class="pend-dot" id="pendDot"></span></button>
   </header>
 
@@ -775,6 +790,88 @@
   welcomeName.addEventListener("keydown", e => { if(e.key === "Enter") enterBoard(); });
   welcomeName.focus();
 
+  /* ---------- stock request notifications ---------- */
+  const bellBtn = document.getElementById("bellBtn");
+  const DOTS = {urgent:"\u{1F534}", normal:"\u{1F7E1}", low:"\u{1F7E2}"};
+  let swReg = null;
+
+  // storage helpers - localStorage can be unavailable in some private modes
+  function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+  function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+
+  if("serviceWorker" in navigator){
+    navigator.serviceWorker.register("sw.js").then(r => { swReg = r; }).catch(() => {});
+  }
+
+  function bellEnabled(){
+    return lsGet("n86_bellEnabled") === "1" &&
+      ("Notification" in window) && Notification.permission === "granted";
+  }
+  function paintBell(){
+    const on = bellEnabled();
+    bellBtn.classList.toggle("on", on);
+    bellBtn.setAttribute("aria-pressed", on ? "true" : "false");
+    bellBtn.innerHTML = on ? "\u{1F514}" : "\u{1F515}";
+    bellBtn.title = on
+      ? "Stock request alerts on \u2014 tap to mute"
+      : "Notify me about stock requests";
+  }
+  bellBtn.addEventListener("click", async () => {
+    if(bellEnabled()){
+      lsSet("n86_bellEnabled","0");
+      paintBell();
+      return;
+    }
+    if(!("Notification" in window)){
+      showHint("This browser doesn't support notifications.");
+      return;
+    }
+    let perm = Notification.permission;
+    if(perm === "default"){
+      try{ perm = await Notification.requestPermission(); }catch(e){ perm = "denied"; }
+    }
+    if(perm !== "granted"){
+      showHint("Notifications are blocked \u2014 allow them for this site in your browser settings.");
+      return;
+    }
+    lsSet("n86_bellEnabled","1");
+    paintBell();
+  });
+  paintBell();
+
+  async function showAppNotification(title, body, tag){
+    const opts = { body: body, tag: tag || "the86" };
+    try{
+      const reg = swReg || ("serviceWorker" in navigator ? await navigator.serviceWorker.getRegistration() : null);
+      if(reg && reg.showNotification){ reg.showNotification(title, opts); return; }
+    }catch(e){}
+    try{ new Notification(title, opts); }catch(e){ console.error(e); }
+  }
+
+  function notifyNewRequest(it){
+    if(!bellEnabled()) return;
+    const lines = [(DOTS[it.priority] || "") + " " + it.name];
+    if(it.addedBy) lines.push("Requested by " + it.addedBy);
+    if(it.note) lines.push(it.note.length > 80 ? it.note.slice(0,77) + "\u2026" : it.note);
+    showAppNotification("The 86 \u2014 new stock request", lines.join("\n"), "the86-req-" + it.id);
+  }
+
+  function notifyDecision(it){
+    if(!bellEnabled()) return;
+    const approved = it.status === "approved";
+    const lines = [it.name];
+    if(it.managerNote){
+      lines.push((approved ? "Order confirmation: " : "Reason: ") +
+        (it.managerNote.length > 90 ? it.managerNote.slice(0,87) + "\u2026" : it.managerNote));
+    }
+    if(it.addedBy) lines.push("Requested by " + it.addedBy);
+    showAppNotification(
+      approved ? "The 86 \u2014 request approved \u2705" : "The 86 \u2014 request rejected \u274C",
+      lines.join("\n"),
+      "the86-dec-" + it.id
+    );
+  }
+
   /* ---------- keep "today" accurate across a day rollover ---------- */
   let currentDayKey = shiftDateKey(new Date());
   setInterval(() => {
@@ -786,12 +883,37 @@
   }, 30000); // check twice a minute; cheap and catches midnight promptly
 
   /* ---------- live data ---------- */
+  let itemsReady = false; // true once the initial snapshot has loaded
   db.collection(COL).orderBy("createdAt","desc").limit(500).onSnapshot(
     snap => {
       connEl.className = "conn ok";
       connText.textContent = "Live";
       banner.style.display = "none";
+
+      // detect stock request events before overwriting local state
+      if(itemsReady){
+        const prevById = {};
+        items.forEach(it => { prevById[it.id] = it; });
+        snap.docChanges().forEach(ch => {
+          // pending writes are this device's own actions - don't self-notify
+          if(ch.doc.metadata.hasPendingWrites) return;
+          const d = { id: ch.doc.id, ...ch.doc.data() };
+          if(d.type !== "bar") return;
+          if(ch.type === "added" && !prevById[d.id]){
+            notifyNewRequest(d);
+          }else if(ch.type === "modified"){
+            const prev = prevById[d.id];
+            const prevStatus = prev ? (prev.status || "pending") : null;
+            const newStatus = d.status || "pending";
+            if(prevStatus === "pending" && (newStatus === "approved" || newStatus === "rejected")){
+              notifyDecision(d);
+            }
+          }
+        });
+      }
+
       items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      itemsReady = true;
       render();
     },
     err => {
