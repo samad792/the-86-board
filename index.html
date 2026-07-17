@@ -281,6 +281,9 @@
   .st.pending{color:var(--normal);background:rgba(242,182,60,.14)}
   .st.approved{color:var(--low);background:rgba(87,180,159,.14)}
   .st.rejected{color:var(--urgent);background:rgba(255,107,94,.14)}
+  .item.decided{opacity:.55}
+  .item.decided:hover{opacity:.8}
+  .item.rej .item-name{text-decoration:line-through;text-decoration-thickness:2px}
   .inv-group-label{
     font:600 12px var(--font-body);
     letter-spacing:.1em;text-transform:uppercase;
@@ -621,6 +624,14 @@
     sbOverlay.classList.remove("show");
     sidebar.setAttribute("aria-hidden","true");
     burgerBtn.setAttribute("aria-expanded","false");
+    // security: manager mode doesn't survive the panel closing
+    if(managerMode){
+      managerMode = false;
+      openDecisions = {};
+      decisionDrafts = {};
+      renderMgrBox();
+      renderInventory();
+    }
   }
   burgerBtn.addEventListener("click", openSidebar);
   document.getElementById("sbClose").addEventListener("click", closeSidebar);
@@ -1073,21 +1084,16 @@
         '</div>';
     }
 
-    // received tick only makes sense once a request is approved
-    const checkHtml = status === "approved"
-      ? '<button class="check" data-act="toggle-done" data-id="' + it.id + '" aria-label="' + (it.done ? "Mark as not received" : "Mark as received") + '">\u2713</button>'
-      : "";
-
     return (
-      '<div class="item p-' + esc(it.priority || "normal") + (it.done ? " done" : "") + '">' +
+      '<div class="item p-' + esc(it.priority || "normal") +
+        (status !== "pending" ? " decided" : "") +
+        (status === "rejected" ? " rej" : "") + '">' +
         '<div class="item-top">' +
-          checkHtml +
           '<div class="item-main">' +
             '<div class="item-name">' + esc(it.name) + '</div>' +
             '<div class="item-meta">' + esc(it.addedBy || "") +
               (it.dateKey ? " \u00B7 " + prettyDate(it.dateKey) : "") +
-              (it.createdAt ? " \u00B7 " + prettyTime(it.createdAt) : "") +
-              (status === "approved" && it.done ? " \u00B7 received" : "") + '</div>' +
+              (it.createdAt ? " \u00B7 " + prettyTime(it.createdAt) : "") + '</div>' +
           '</div>' +
           '<span class="st ' + esc(status) + '">' + esc(status) + '</span>' +
           (managerMode ? '<button class="del-btn" data-act="delete" data-id="' + it.id + '" aria-label="Delete request">\u2715</button>' : "") +
