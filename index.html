@@ -550,6 +550,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.12.4/firebase-app-compat.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.12.4/firebase-firestore-compat.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.12.4/firebase-messaging-compat.min.js"></script>
 <script>
 (function(){
   "use strict";
@@ -567,6 +568,54 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
   const COL = "board_items";
+
+  /* ---------- remote push via Firebase Cloud Messaging ----------
+     Real push notifications that arrive even when the app is closed.
+     Paste your Web Push certificate public key (Firebase console >
+     Project settings > Cloud Messaging > Web Push certificates). */
+  const VAPID_KEY = "BCNuQgQFMGxSfc9nS-YKAuzBw2Nz2PF8kc8M4ISX01QOhNJKpYj8TJqMtq25agLrMqAVGgc8bJ3smQvxxk9KIjY";
+  const COL_TOKENS = "push_tokens";
+
+  function pushSupported(){
+    return !!(firebase.messaging && firebase.messaging.isSupported && firebase.messaging.isSupported());
+  }
+
+  async function registerPush(){
+    if(VAPID_KEY.indexOf("PASTE_") === 0){
+      console.warn("FCM: VAPID key not set yet - remote push disabled.");
+      return;
+    }
+    if(!pushSupported()) return;
+    try{
+      const reg = swReg || await navigator.serviceWorker.register("firebase-messaging-sw.js");
+      swReg = reg;
+      const messaging = firebase.messaging();
+      const token = await messaging.getToken({ vapidKey: VAPID_KEY, serviceWorkerRegistration: reg });
+      if(!token) return;
+      lsSet("n86_pushToken", token);
+      await db.collection(COL_TOKENS).doc(token).set({
+        token: token,
+        ua: (navigator.userAgent || "").slice(0,150),
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      // foreground pushes are ignored - the in-app notifications
+      // (which skip the acting device) already cover the open app
+      messaging.onMessage(function(){});
+    }catch(e){
+      console.error("FCM registration failed", e);
+    }
+  }
+
+  async function unregisterPush(){
+    const token = lsGet("n86_pushToken");
+    try{
+      if(pushSupported()) await firebase.messaging().deleteToken();
+    }catch(e){}
+    if(token){
+      try{ await db.collection(COL_TOKENS).doc(token).delete(); }catch(e){}
+      lsSet("n86_pushToken","");
+    }
+  }
 
   /* ---------- helpers ---------- */
 
@@ -811,7 +860,7 @@
   function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
 
   if("serviceWorker" in navigator){
-    navigator.serviceWorker.register("sw.js").then(r => { swReg = r; }).catch(() => {});
+    navigator.serviceWorker.register("firebase-messaging-sw.js").then(r => { swReg = r; }).catch(() => {});
   }
 
   function bellEnabled(){
@@ -831,6 +880,7 @@
     if(bellEnabled()){
       lsSet("n86_bellEnabled","0");
       paintBell();
+      unregisterPush();
       return;
     }
     if(!("Notification" in window)){
@@ -847,8 +897,11 @@
     }
     lsSet("n86_bellEnabled","1");
     paintBell();
+    registerPush();
   });
   paintBell();
+  // refresh this device's push token on load if the bell is on (tokens rotate)
+  if(bellEnabled()) registerPush();
 
   async function showAppNotification(title, body, tag){
     const opts = { body: body, tag: tag || "the86" };
